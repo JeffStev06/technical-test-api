@@ -57,6 +57,14 @@ public class Department {
 		this.created = created;
 		this.updated = updated;
 	}
+    
+    public void assignEmployee(User employee) {
+    	users.add(employee);
+    }
+    
+    public void removeEmployee(User employee) {
+    	users.remove(employee);
+    }
 
 	public Integer getId() {
         return id;

@@ -18,7 +18,7 @@ public class UserRequest {
 	@Email
 	@NotBlank
     private String email;
-	private List<Integer> departments = new ArrayList<Integer>();
+	
 	public String getName() {
 		return name;
 	}
@@ -48,11 +48,5 @@ public class UserRequest {
 	}
 	public void setEmail(String email) {
 		this.email = email;
-	}
-	public List<Integer> getDepartments() {
-		return departments;
-	}
-	public void setDepartments(List<Integer> departments) {
-		this.departments = departments;
 	}
 }

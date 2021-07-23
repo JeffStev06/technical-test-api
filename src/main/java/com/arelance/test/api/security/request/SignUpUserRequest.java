@@ -1,12 +1,7 @@
 package com.arelance.test.api.security.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-
-import com.arelance.test.api.entity.Department;
 
 public class SignUpUserRequest {
 	@NotBlank
@@ -22,7 +17,6 @@ public class SignUpUserRequest {
     private String email;
 	@NotBlank
     private String role;
-    private List<Integer> departments = new ArrayList<Integer>();
     
 	public String getName() {
 		return name;
@@ -59,12 +53,6 @@ public class SignUpUserRequest {
 	}
 	public void setRole(String role) {
 		this.role = role;
-	}
-	public List<Integer> getDepartments() {
-		return departments;
-	}
-	public void setDepartments(List<Integer> departments) {
-		this.departments = departments;
 	}
 	
 }

@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,7 @@ import com.arelance.test.api.service.RoleService;
 import com.arelance.test.api.service.UserService;
 import com.arelance.test.api.entity.Department;
 import com.arelance.test.api.entity.User;
+import com.arelance.test.api.request.UserRequest;
 import com.arelance.test.api.response.GenericObjectResponse;
 import com.arelance.test.api.response.Message;
 import com.arelance.test.api.response.SignUpResponse;
@@ -71,16 +73,11 @@ public class AuthController {
 		if (!roleService.existsByRoleName(signUpReq.getRole())) {
 			return new ResponseEntity<Message>(new Message("El rol ingresado no existe"), HttpStatus.BAD_REQUEST);
 		}
-		Set<Department> lstDepartments = new HashSet<>();
-		for (int departmentId :signUpReq.getDepartments()) {
-			Department dep = departmentService.getById(departmentId).get();
-			lstDepartments.add(dep);
-		}
 		
 		LocalDateTime now = LocalDateTime.now();
 		
 		User user = new User(signUpReq.getName(), signUpReq.getLast(), signUpReq.getAddress(), signUpReq.getDni(),
-							 signUpReq.getEmail(),1,0, lstDepartments,now,now);
+							 signUpReq.getEmail(),1,0,now,now);
 		
 		String pass = userService.generatePass(user);
 		user.setPassword(passwordEncoder.encode(pass));
@@ -112,10 +109,10 @@ public class AuthController {
 		
 	}
 	
-	@PreAuthorize("hasRole('ADMIN') || hasRole('CONSULTANT')")
-	//@PreAuthorize("hasAnyRole('ADMIN','CONSULTANT')")
+	//@PreAuthorize("hasRole('ADMIN') || hasRole('CONSULTANT')")
+	@PreAuthorize("hasAnyRole('ADMIN','CONSULTANT')")
 	@PostMapping("/update/credentials/{id}")
-	public ResponseEntity<?> changeCredentials(@Valid @RequestBody SignInUserRequest signInReq,@PathVariable("id") int id, BindingResult bindingResult) {
+	public ResponseEntity<?> changeCredentials(@PathVariable("id") int id, @Valid @RequestBody SignInUserRequest signInReq, BindingResult bindingResult) {
 		if (bindingResult.hasFieldErrors("email")) {
 			return new ResponseEntity<Message>(new Message("Email inválido o vacío"), HttpStatus.BAD_REQUEST);
 		}
@@ -138,7 +135,7 @@ public class AuthController {
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("/update/password/{id}")
+	@GetMapping("/update/password/{id}")
 	public ResponseEntity<?> changePassword(@PathVariable("id") int id) {
 		// Se comprueba que el id exista
 		if (!userService.existsById(id)) {

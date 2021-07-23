@@ -3,9 +3,12 @@ package com.arelance.test.api.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,9 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.arelance.test.api.entity.Department;
+import com.arelance.test.api.entity.User;
+import com.arelance.test.api.request.AssignUsersRequest;
 import com.arelance.test.api.request.DepartmentRequest;
+import com.arelance.test.api.response.GenericListResponse;
 import com.arelance.test.api.response.Message;
 import com.arelance.test.api.service.DepartmentService;
+import com.arelance.test.api.service.UserService;
 
 @RestController
 @RequestMapping("/department")
@@ -29,12 +36,15 @@ public class DepartmentController {
 	
 	@Autowired
 	DepartmentService departmentService;
+	@Autowired
+	UserService userService;
 	
 	@GetMapping("/list")
-	public ResponseEntity<List<Department>> list() {
+	public ResponseEntity<?> list() {
 		List<Department> list = departmentService.list();
 		
-		return new ResponseEntity<List<Department>>(list,HttpStatus.OK);
+		GenericListResponse response = new GenericListResponse("Transacción exitosa", list);
+		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
 	}
 	
 	@GetMapping("/detail/{id}")
@@ -61,14 +71,15 @@ public class DepartmentController {
 		
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/create")
-	public ResponseEntity<?> create(@RequestBody DepartmentRequest departmentRequest, BindingResult bindingResult) {
+	public ResponseEntity<?> create(@Valid @RequestBody DepartmentRequest departmentRequest, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			return new ResponseEntity<Message>(new Message("Datos inválidos o incompletos"), HttpStatus.BAD_REQUEST);
 		}
 		// Se comprueba que el nombre no exista
 		if (departmentService.existByName(departmentRequest.getName())) {
-			return new ResponseEntity<Message>(new Message("Ese nombre de department ya existe"), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Message>(new Message("Ese nombre de departmento ya existe"), HttpStatus.BAD_REQUEST);
 		}
 		// Obtenemos la fecha y hora actual
 		LocalDateTime now = LocalDateTime.now();
@@ -84,8 +95,26 @@ public class DepartmentController {
 		return new ResponseEntity<Message>(new Message("Departamento creado"), HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/assign/users/{depId}")
+	public ResponseEntity<?> update(@PathVariable("depId") int depId, @RequestBody AssignUsersRequest assignUser) {
+		Department department = departmentService.getById(depId).get();
+		
+		for (int userId: assignUser.getUsersToAdd()) {
+			User user = userService.getById(userId).get();
+			department.assignEmployee(user);
+		}
+		for (int userId: assignUser.getUsersToRemove()) {
+			User user = userService.getById(userId).get();
+			department.removeEmployee(user);
+		}
+		departmentService.save(department);
+		return new ResponseEntity<Message>(new Message("Empleados reasignados correctamente"), HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/update/{id}")
-	public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody DepartmentRequest departmentRequest, BindingResult bindingResult) {
+	public ResponseEntity<?> update(@PathVariable("id") int id, @Valid @RequestBody DepartmentRequest departmentRequest, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			return new ResponseEntity<Message>(new Message("Datos inválidos o incompletos"), HttpStatus.BAD_REQUEST);
 		}
@@ -117,6 +146,7 @@ public class DepartmentController {
 		
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> delete(@PathVariable("id") int id) {
 		// Se comprueba que el id exista

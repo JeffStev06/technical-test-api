@@ -64,7 +64,7 @@ public class User {
     }
     
     public User(String name, String last, String address, String dni, String email, int active,
-    		int util, Set<Department> departments, LocalDateTime created, LocalDateTime updated) {
+    		int util, LocalDateTime created, LocalDateTime updated) {
 		this.name = name;
 		this.last = last;
 		this.address = address;
@@ -73,7 +73,6 @@ public class User {
 		//this.password = password;
 		this.active = active;
 		this.util = util;
-		this.departments = departments;
 		this.created = created;
 		this.updated = updated;
 	}

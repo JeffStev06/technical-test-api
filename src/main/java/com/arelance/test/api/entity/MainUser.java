@@ -10,11 +10,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class MainUser implements UserDetails {
 	
+	private String name;
+	private String last;
 	private String email;
 	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
 	
-	public MainUser(String email, String password, Collection<? extends GrantedAuthority> authorities) {
+	public MainUser(String name, String last, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+		this.name = name;
+		this.last = last;
 		this.email = email;
 		this.password = password;
 		this.authorities = authorities;
@@ -24,7 +28,8 @@ public class MainUser implements UserDetails {
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority(user.getRole().getRoleName()));
 		
-		return new MainUser(user.getEmail(), user.getPassword(), authorities);
+		return new MainUser(user.getName(), user.getLast(), 
+							user.getEmail(), user.getPassword(), authorities);
 	}
 
 	@Override
@@ -61,5 +66,21 @@ public class MainUser implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
 	}
-	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getLast() {
+		return last;
+	}
+
+	public void setLast(String last) {
+		this.last = last;
+	}
+
 }
