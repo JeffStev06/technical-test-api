@@ -18,3 +18,6 @@ Se encuentran:
 - El archivo .jar de la aplicación
 - El Dump de la base de datos.
 - El archivo de collections.json de POSTMAN, para poder consultar el acceso a todos los endpoint organizados por carpetas y con la especificación de cada una de sus tramas de respuesta y peticiones.
+
+
+##### Developed by. Jeffrey Steven Morán
