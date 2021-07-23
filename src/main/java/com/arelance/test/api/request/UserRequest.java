@@ -1,7 +1,5 @@
 package com.arelance.test.api.request;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

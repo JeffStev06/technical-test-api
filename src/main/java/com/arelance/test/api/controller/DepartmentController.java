@@ -39,6 +39,10 @@ public class DepartmentController {
 	@Autowired
 	UserService userService;
 	
+	/**
+	 * Devuelve una lista de todos los Departamentos
+	 * @return
+	 */
 	@GetMapping("/list")
 	public ResponseEntity<?> list() {
 		List<Department> list = departmentService.list();
@@ -47,6 +51,11 @@ public class DepartmentController {
 		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
 	}
 	
+	/**
+	 * Búsqueda por id, se devuelve un objeto de tipo una respuesta personalizada con un objeto Department
+	 * @param id
+	 * @return
+	 */
 	@GetMapping("/detail/{id}")
 	public ResponseEntity<?> getById(@PathVariable("id") int id) {
 		// Se comprueba que el id exista
@@ -59,6 +68,11 @@ public class DepartmentController {
 		
 	}
 	
+	/**
+	 * Búsqueda por el nombre, se devuelve un objeto de tipo una respuesta personalizada con un objeto Department
+	 * @param name
+	 * @return
+	 */
 	@GetMapping("/detailname/{name}")
 	public ResponseEntity<?> getDep(@PathVariable("name") String name) {
 		// Se comprueba que el nombre no esté en blanco
@@ -71,6 +85,13 @@ public class DepartmentController {
 		
 	}
 	
+	/**
+	 * Creación del objeto Departamento
+	 * Solo se puede acceder como ADMIN
+	 * @param departmentRequest
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/create")
 	public ResponseEntity<?> create(@Valid @RequestBody DepartmentRequest departmentRequest, BindingResult bindingResult) {
@@ -95,6 +116,18 @@ public class DepartmentController {
 		return new ResponseEntity<Message>(new Message("Departamento creado"), HttpStatus.OK);
 	}
 	
+	/**
+	 * Método de asignación de departamentos y usuarios/empleados, consta de una clase Request en la que se 
+	 * pide reciban 2 listas de ints ambas listas representan IDs de usuarios:
+	 * La primera es de los que usuarios a asignar al departamento del id de la PathVariable 
+	 * La segunda es para los empleados a remover del departamento 
+	 * 
+	 * La razón es más versatilidad para una edición a gran escala, ambas listas pueden ir vacías o solo una llena
+	 * si así es requerido.
+	 * @param depId
+	 * @param assignUser
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/assign/users/{depId}")
 	public ResponseEntity<?> update(@PathVariable("depId") int depId, @RequestBody AssignUsersRequest assignUser) {
@@ -112,6 +145,15 @@ public class DepartmentController {
 		return new ResponseEntity<Message>(new Message("Empleados reasignados correctamente"), HttpStatus.OK);
 	}
 	
+	/**
+	 * Método de actualización del departamento, se valida que no se actualicen los dos ROLES por defecto, para 
+	 * no perder permisos en el futuro. 
+	 * Solo se puede acceder si se es rol ADMIN
+	 * @param id
+	 * @param departmentRequest
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> update(@PathVariable("id") int id, @Valid @RequestBody DepartmentRequest departmentRequest, BindingResult bindingResult) {
@@ -146,6 +188,11 @@ public class DepartmentController {
 		
 	}
 	
+	/**
+	 * Eliminación del departamento.
+	 * @param id
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> delete(@PathVariable("id") int id) {

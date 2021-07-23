@@ -20,12 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.arelance.test.api.entity.Department;
 import com.arelance.test.api.entity.Role;
-import com.arelance.test.api.entity.User;
-import com.arelance.test.api.request.DepartmentRequest;
 import com.arelance.test.api.request.RoleRequest;
-import com.arelance.test.api.request.UserRequest;
 import com.arelance.test.api.response.GenericListResponse;
 import com.arelance.test.api.response.GenericObjectResponse;
 import com.arelance.test.api.response.Message;
@@ -42,7 +38,10 @@ public class RoleController {
 	@Autowired
 	RoleService roleService;
 	
-	
+	/**
+	 * Devuelve una lista de todos los roles
+	 * @return
+	 */
 	@GetMapping("/list")
 	public ResponseEntity<GenericListResponse> list() {
 		List<Role> list = roleService.list(); 
@@ -51,6 +50,11 @@ public class RoleController {
 		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
 	}
 	
+	/**
+	 * Búsqueda por id de rol, se devuelve un objeto de tipo una respuesta personalizada con un objeto Role
+	 * @param id
+	 * @return
+	 */
 	@GetMapping("/detail/{id}")
 	public ResponseEntity<?> searchById(@PathVariable int id) {
 		// Se comprueba que el id exista
@@ -64,6 +68,12 @@ public class RoleController {
 		}
 	}
 	
+	/**
+	 * Creación del objeto rol 
+	 * @param roleRequest
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/create")
 	public ResponseEntity<?> create(@Valid @RequestBody RoleRequest roleRequest, BindingResult bindingResult) {
@@ -90,6 +100,15 @@ public class RoleController {
 		return new ResponseEntity<Message>(new Message("Rol creado"), HttpStatus.OK);
 	}
 	
+	/**
+	 * Método de actualización del rol, se valida que no se actualicen los dos ROLES por defecto, para 
+	 * no perder permisos en el futuro. 
+	 * Solo se puede acceder si se es rol ADMIN 
+	 * @param id
+	 * @param roleRequest
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> update(@PathVariable("id") int id, @Valid @RequestBody RoleRequest roleRequest, BindingResult bindingResult) {
@@ -126,6 +145,13 @@ public class RoleController {
 		return new ResponseEntity<Message>(new Message("Rol actualizado"), HttpStatus.OK);
 	}
 	
+	/**
+	 * Método de eliminación del registro.
+	 * También se valida que no se elimine alguno de los dos ROLES por defecto, para 
+	 * no perder permisos en el futuro.
+	 * @param id
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> delete(@PathVariable("id") int id) {

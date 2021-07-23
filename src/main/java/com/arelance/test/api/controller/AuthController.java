@@ -61,6 +61,16 @@ public class AuthController {
 	@Autowired
 	JwtProvider jwtProvider;
 	
+	/**
+	 * Método que permite crear una cuenta de usuario que a la vez es una entidad de empleado dentro de la empresa.
+	 * Este endpoint está limitado a accederse con privilegios de Admin ya que se diseñó una mecánica que a partir
+	 * de un usuario administrador, se generen las cuentas de los empleados.
+	 * Una contraseña temporal se genera, provista como respuesta al administrador para que el usuario pueda loguearse,
+	 * dentro de la cuenta el usuario pueda cambiar su contraseña personalmente.
+	 * @param signUpReq
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/register")
 	public ResponseEntity<?> newUser(@Valid @RequestBody SignUpUserRequest signUpReq, BindingResult bindingResult) {
@@ -90,7 +100,13 @@ public class AuthController {
 		return new ResponseEntity<GenericObjectResponse>(response, HttpStatus.CREATED);
 	}
 
-	
+	/**
+	 * Método para generar el inicio de sesión, aquí se genera el JWT que será devuelto, según el formato estándar.
+	 * Tiene una validez de dos horas desde que se generó.
+	 * @param signInReq
+	 * @param bindingResult
+	 * @return
+	 */
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@Valid @RequestBody SignInUserRequest signInReq, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -109,7 +125,15 @@ public class AuthController {
 		
 	}
 	
-	//@PreAuthorize("hasRole('ADMIN') || hasRole('CONSULTANT')")
+	/**
+	 * Este método permite actualizar la información de acceso ya sea cambiar la contraseña o solamente actualizar el
+	 * correo electrónico, en este caso si la contraseña se deja vacía NO se actualizará, por eso no se valida si viene vacía
+	 * Este endpoint lo puede acceder tanto un ADMIN como un CONSULTOR
+	 * @param id
+	 * @param signInReq
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasAnyRole('ADMIN','CONSULTANT')")
 	@PostMapping("/update/credentials/{id}")
 	public ResponseEntity<?> changeCredentials(@PathVariable("id") int id, @Valid @RequestBody SignInUserRequest signInReq, BindingResult bindingResult) {
@@ -134,6 +158,14 @@ public class AuthController {
 		return new ResponseEntity<Message>(new Message("Credenciales actualizadas, vuelve a iniciar sesión"), HttpStatus.OK);
 	}
 	
+	/***
+	 * Este método es para uso exclusivo del ADMIN, en el momento en que algún usuario haya perdido su contraseña, desde
+	 * un botón se puede utilizar esta petición GET, para volver a gener una nueva contraseña.
+	 * La contraseña se genera a partir de la inicial del nombre del usuario, el apellido y tres números aleatorios.
+	 * al igual que la generada en el registro.s 
+	 * @param id
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/update/password/{id}")
 	public ResponseEntity<?> changePassword(@PathVariable("id") int id) {
