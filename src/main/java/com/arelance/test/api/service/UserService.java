@@ -23,6 +23,14 @@ public class UserService {
 		return userRepository.findAll();
 	}
 	
+	public List<User> findByNameContaining(String name) {
+		return userRepository.findByNameContaining(name);
+	}
+	
+	public List<User> findByDepartment(int id) {
+		return userRepository.findByDepartment(id);
+	}
+	
 	public Optional<User> getById(int id) {
 		return userRepository.findById(id);
 	}

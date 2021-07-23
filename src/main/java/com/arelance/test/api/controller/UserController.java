@@ -1,10 +1,7 @@
 package com.arelance.test.api.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -45,6 +42,10 @@ public class UserController {
 	@Autowired
 	DepartmentService departmentService;
 	
+	/**
+	 * Devuelve una lista de todos los usuarios/empleados
+	 * @return
+	 */
 	@GetMapping("/list")
 	public ResponseEntity<GenericListResponse> list() {
 		List<User> list = userService.list();
@@ -55,6 +56,11 @@ public class UserController {
 		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
 	}
 	
+	/**
+	 * Búsqueda por id de usuario, se devuelve un objeto de tipo una respuesta personalizada con un objeto User
+	 * @param id
+	 * @return
+	 */
 	@GetMapping("/detail/{id}")
 	public ResponseEntity<?> searchById(@PathVariable int id) {
 		// Se comprueba que el id exista
@@ -69,11 +75,26 @@ public class UserController {
 		}
 	}
 	
-	@GetMapping("/search")
-	public ResponseEntity<GenericListResponse> searchByName() {
-		List<User> list = userService.list();
-		// Tomar en cuenta:
-		// Contains %Nombre%+%Apellido% Contains Departamento y Contains Rol
+	/**
+	 * Búsqueda de usuario por nombre, pensado para un buscador y resultados inmediatos
+	 * @return
+	 */
+	@GetMapping("/search/name/{search}")
+	public ResponseEntity<GenericListResponse> searchByName(@PathVariable String search) {
+		List<User> list = userService.findByNameContaining(search);
+		
+		GenericListResponse response = new GenericListResponse("Transacción exitosa", list);
+		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
+	}
+	
+	/**
+	 * Búsqueda de usuario por departamento gracias a consultas nativas de JPA, pensado para un filtro en la vista
+	 * @return
+	 */
+	@GetMapping("/search/department/{id}")
+	public ResponseEntity<GenericListResponse> searchByDepartment(@PathVariable int id) {
+		List<User> list = userService.findByDepartment(id);
+		
 		GenericListResponse response = new GenericListResponse("Transacción exitosa", list);
 		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
 	}
@@ -95,9 +116,18 @@ public class UserController {
 		return new ResponseEntity<GenericListResponse>(response, HttpStatus.OK);
 	}
 	
+	/**
+	 * Método de actualización de usuario, se valida la existencia del objeto en la base 
+	 * Solo se puede acceder si se es rol ADMIN 
+	 * @param id
+	 * @param userRequest
+	 * @param bindingResult
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> update(@PathVariable("id") int id, @Valid @RequestBody UserRequest userRequest, BindingResult bindingResult) {
+		// Validación de campos gracias a las notaciones de javax.validation en el Request
 		if (bindingResult.hasErrors()) {
 			return new ResponseEntity<Message>(new Message("Datos inválidos o vacíos"), HttpStatus.BAD_REQUEST);
 		}
@@ -127,7 +157,11 @@ public class UserController {
 		
 		return new ResponseEntity<Message>(new Message("Usuario actualizado"), HttpStatus.OK);
 	}
-	
+	/**
+	 * Este endpoint permite el cambio de estado entre activo e inactivo de un usuario
+	 * @param id
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/update/status/{id}")
 	public ResponseEntity<?> changeStatus(@PathVariable("id") int id) {
@@ -149,6 +183,11 @@ public class UserController {
 		return new ResponseEntity<Message>(new Message(message), HttpStatus.OK);
 	}
 	
+	/**
+	 * Método de eliminación del registro.
+	 * @param id
+	 * @return
+	 */
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> delete(@PathVariable("id") int id) {
