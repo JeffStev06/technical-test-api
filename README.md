@@ -6,14 +6,14 @@
 
 ## Información
 
-El usuario principal con rol ADMIN es
-  jeffrey.sdev01@gmail.com
-  jmoran123456
+El usuario principal con rol ADMIN es <br>
+  email: jeffrey.sdev01@gmail.com<br>
+  pass:  jmoran123456
 
 Se puede utilizar para acceder a los demás, para registrar más usuarios o generar la contraseña de los ya existentes para 
 acceder a ellos.
 
-En la ruta ~/api/resources 
+En la ruta ~/api/resources <br>
 Se encuentran:
 - El archivo .jar de la aplicación
 - El Dump de la base de datos.
