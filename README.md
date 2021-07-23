@@ -13,7 +13,7 @@ El usuario principal con rol ADMIN es <br>
 Se puede utilizar para acceder a los demás, para registrar más usuarios o generar la contraseña de los ya existentes para 
 acceder a ellos.
 
-En la ruta ~/api/resources <br>
+En la ruta ~/resources <br>
 Se encuentran:
 - El archivo .jar de la aplicación
 - El Dump de la base de datos.
